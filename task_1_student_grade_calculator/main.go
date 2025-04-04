@@ -22,9 +22,14 @@ func main() {
 	// getAverageGrade();
 	fmt.Println("------------------------------------------------------")
 
-	fmt.Printf("Your Student name is : %v \n No of subjeect : %v \n", studentName, noOfSubjects)
+	fmt.Printf("Your Student name is : %v \nNo of subjeect : %v \n", studentName, noOfSubjects)
 
-	fmt.Printf("Your Average Grade is : %v", getAverageGrade())
+	fmt.Println("\nYour Subjects and Grades are : ")
+	for subject, grade := range grades {
+		fmt.Printf("Subject : %s \t Grade : %d \n", subject, grade)
+	}
+
+	fmt.Printf("\nYour Average Grade is : %v", getAverageGrade())
 
 	fmt.Println("\n------------------------------------------------------")
 
