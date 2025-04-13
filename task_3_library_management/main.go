@@ -27,9 +27,7 @@ func main() {
 		fmt.Println("4. Return Book")
 		fmt.Println("5. List Available Books")
 		fmt.Println("6. List Borrowed Books by Member")
-		fmt.Println("7. Add Member")
-		fmt.Println("8. Remove Member")
-		fmt.Println("9. Exit")
+		fmt.Println("7. Exit")
 
 		fmt.Println("----------------------------------------------------------------------------------------------------------")
 
@@ -52,10 +50,6 @@ func main() {
 		case "6":
 			controller.ListBorrowedBooksByMember()
 		case "7":
-			controller.AddMember()
-		case "8":
-			controller.RemoveMember()
-		case "9":
 			fmt.Println("Exiting...")
 			os.Exit(0)
 		default:

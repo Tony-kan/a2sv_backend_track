@@ -152,7 +152,7 @@ func (libController *LibraryController) ListBorrowedBooksByMember() {
 	books := libController.libraryService.ListBorrowedBooks(memberId)
 
 	if len(books) == 0 {
-		fmt.Println("No books borrowed by member")
+		fmt.Printf("No books borrowed by member with Id %d \n", memberId)
 		return
 	}
 	fmt.Printf("Books borrowed by member with Id %d : \n", memberId)
@@ -160,7 +160,3 @@ func (libController *LibraryController) ListBorrowedBooksByMember() {
 		fmt.Printf("Id : %d | Title : %s | Author : %s | Status : %s\n", book.ID, book.Title, book.Author, book.Status)
 	}
 }
-
-func (libController *LibraryController) AddMember() {}
-
-func (libController *LibraryController) RemoveMember() {}
