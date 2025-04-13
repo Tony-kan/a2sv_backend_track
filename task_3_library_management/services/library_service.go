@@ -26,49 +26,49 @@ func NewLibrary() *Library {
 	}
 }
 
-func (l *Library) AddBook(book models.Book) error {
-	if _, exists := l.books[book.ID]; exists {
+func (lib *Library) AddBook(book models.Book) error {
+	if _, exists := lib.books[book.ID]; exists {
 		return fmt.Errorf("book with ID %d already exists", book.ID)
 	}
 
-	l.books[book.ID] = book
+	lib.books[book.ID] = book
 	return nil
 }
 
-func (l *Library) RemoveBook(bookID int) error {
-	if _, exists := l.books[bookID]; !exists {
+func (lib *Library) RemoveBook(bookID int) error {
+	if _, exists := lib.books[bookID]; !exists {
 		return fmt.Errorf("book with ID %d does not exist", bookID)
 	}
-	delete(l.books, bookID)
+	delete(lib.books, bookID)
 	return nil
 }
 
-func (l *Library) BorrowBook(bookID int, memberID int) error {
-	if book, exists := l.books[bookID]; exists {
+func (lib *Library) BorrowBook(bookID int, memberID int) error {
+	if book, exists := lib.books[bookID]; exists {
 		if book.Status == "borrowed" {
 			return fmt.Errorf("book with ID %d is already borrowed", bookID)
 		}
 		book.Status = "borrowed"
-		l.books[bookID] = book
-		member := l.members[memberID]
+		lib.books[bookID] = book
+		member := lib.members[memberID]
 		member.BorrowedBooks = append(member.BorrowedBooks, book)
-		l.members[memberID] = member
+		lib.members[memberID] = member
 		return nil
 	}
 	return fmt.Errorf("book with ID %d does not exist", bookID)
 }
-func (l *Library) ReturnBook(bookID int, memberID int) error {
-	if book, exists := l.books[bookID]; exists {
+func (lib *Library) ReturnBook(bookID int, memberID int) error {
+	if book, exists := lib.books[bookID]; exists {
 		if book.Status == "available" {
 			return fmt.Errorf("book with ID %d is already available", bookID)
 		}
 		book.Status = "available"
-		l.books[bookID] = book
-		for i, borrowedBook := range l.members[memberID].BorrowedBooks {
+		lib.books[bookID] = book
+		for i, borrowedBook := range lib.members[memberID].BorrowedBooks {
 			if borrowedBook.ID == bookID {
-				member := l.members[memberID]
+				member := lib.members[memberID]
 				member.BorrowedBooks = append(member.BorrowedBooks[:i], member.BorrowedBooks[i+1:]...)
-				l.members[memberID] = member
+				lib.members[memberID] = member
 				return nil
 			}
 		}
@@ -77,9 +77,9 @@ func (l *Library) ReturnBook(bookID int, memberID int) error {
 	return fmt.Errorf("book with ID %d does not exist", bookID)
 }
 
-func (l *Library) ListAvailableBooks() []models.Book {
+func (lib *Library) ListAvailableBooks() []models.Book {
 	var availableBooks []models.Book
-	for _, book := range l.books {
+	for _, book := range lib.books {
 		if book.Status == "available" {
 			availableBooks = append(availableBooks, book)
 		}
@@ -87,8 +87,8 @@ func (l *Library) ListAvailableBooks() []models.Book {
 	return availableBooks
 }
 
-func (l *Library) ListBorrowedBooks(memberID int) []models.Book {
-	if member, exists := l.members[memberID]; exists {
+func (lib *Library) ListBorrowedBooks(memberID int) []models.Book {
+	if member, exists := lib.members[memberID]; exists {
 		return member.BorrowedBooks
 	}
 	return nil

@@ -43,7 +43,15 @@ func (libController *LibraryController) AddBook() {
 		Status: "available",
 	}
 
-	libController.libraryService.AddBook(book)
+	err := libController.libraryService.AddBook(book)
+
+	if err != nil {
+		fmt.Println("\n=================================================================")
+		fmt.Println("ERROR:", err)
+		fmt.Println("=================================================================")
+		return
+	}
+
 	fmt.Println("=================================================================")
 
 	fmt.Println("Book added successfully!")
@@ -153,8 +161,6 @@ func (libController *LibraryController) ListBorrowedBooksByMember() {
 	}
 }
 
-
 func (libController *LibraryController) AddMember() {}
-
 
 func (libController *LibraryController) RemoveMember() {}
