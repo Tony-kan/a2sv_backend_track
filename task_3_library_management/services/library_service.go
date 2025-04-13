@@ -50,7 +50,9 @@ func (l *Library) BorrowBook(bookID int, memberID int) error {
 		}
 		book.Status = "borrowed"
 		l.books[bookID] = book
-		l.members[memberID].BorrowedBooks = append(l.members[memberID].BorrowedBooks, book)
+		member := l.members[memberID]
+		member.BorrowedBooks = append(member.BorrowedBooks, book)
+		l.members[memberID] = member
 		return nil
 	}
 	return fmt.Errorf("book with ID %d does not exist", bookID)
@@ -64,7 +66,9 @@ func (l *Library) ReturnBook(bookID int, memberID int) error {
 		l.books[bookID] = book
 		for i, borrowedBook := range l.members[memberID].BorrowedBooks {
 			if borrowedBook.ID == bookID {
-				l.members[memberID].BorrowedBooks = append(l.members[memberID].BorrowedBooks[:i], l.members[memberID].BorrowedBooks[i+1:]...)
+				member := l.members[memberID]
+				member.BorrowedBooks = append(member.BorrowedBooks[:i], member.BorrowedBooks[i+1:]...)
+				l.members[memberID] = member
 				return nil
 			}
 		}
