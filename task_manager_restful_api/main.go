@@ -44,97 +44,106 @@ func main() {
 	})
 
 	// a router to get all tasks
-	router.GET("/tasks", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"tasks": tasks,
-		})
-	})
+	router.GET("/tasks", getAllTasks)
 
 	// a router to get a task by id
-	router.GET("/tasks/:id", func(ctx *gin.Context) {
-		id := ctx.Param("id")
-
-		for _, task := range tasks {
-			if task.ID == id {
-				ctx.JSON(http.StatusOK, task)
-				return
-			}
-		}
-
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "Task not found"})
-	})
+	router.GET("/tasks/:id", getTaskById)
 
 	// a router to create a new task
-	router.POST("/tasks", func(ctx *gin.Context) {
-		var newTask Task
-
-		if err := ctx.ShouldBindJSON(&newTask); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error()})
-			return
-		}
-
-		tasks = append(tasks, newTask)
-		ctx.JSON(http.StatusCreated, gin.H{
-			"message": "Task created successfully",
-			"task":    newTask,
-		})
-	})
+	router.POST("/tasks", createTask)
 
 	// a router to update a task by id
-	router.PUT("/tasks/:id", func(ctx *gin.Context) {
-		id := ctx.Param("id")
-
-		var updatedTask Task
-
-		if err := ctx.ShouldBindJSON(&updatedTask); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error()})
-			return
-		}
-
-		for i, task := range tasks {
-			if task.ID == id {
-				// Update the task on the specified fields
-				if updatedTask.Title != "" {
-					tasks[i].Title = updatedTask.Title
-				}
-				if updatedTask.Description != "" {
-					tasks[i].Description = updatedTask.Description
-				}
-				if updatedTask.Status != "" {
-					tasks[i].Status = updatedTask.Status
-				}
-				ctx.JSON(http.StatusOK, gin.H{
-					"message": "Task updated successfully",
-					"task":    tasks[i],
-				})
-				return
-			}
-		}
-
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "Task not found"})
-	})
+	router.PUT("/tasks/:id", updateTaskById)
 
 	// a router to delete a task by id
-	router.DELETE("/tasks/:id", func(ctx *gin.Context) {
-		id := ctx.Param("id")
-
-		for i, val := range tasks {
-			if val.ID == id {
-				tasks = append(tasks[:i], tasks[i+1:]...)
-				ctx.JSON(http.StatusOK, gin.H{
-					"message": "Task deleted successfully",
-				})
-				return
-			}
-		}
-
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error": "Task not found"})
-	})
+	router.DELETE("/tasks/:id", deleteTaskById)
 
 	router.Run("localhost:8080")
+}
+
+func getAllTasks(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"tasks": tasks,
+	})
+}
+
+func getTaskById(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	for _, task := range tasks {
+		if task.ID == id {
+			ctx.JSON(http.StatusOK, task)
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusNotFound, gin.H{
+		"error": "Task not found"})
+}
+
+func createTask(ctx *gin.Context) {
+	var newTask Task
+
+	if err := ctx.ShouldBindJSON(&newTask); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	}
+
+	tasks = append(tasks, newTask)
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "Task created successfully",
+		"task":    newTask,
+	})
+}
+
+func updateTaskById(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	var updatedTask Task
+
+	if err := ctx.ShouldBindJSON(&updatedTask); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error()})
+		return
+	}
+
+	for i, task := range tasks {
+		if task.ID == id {
+			// Update the task on the specified fields
+			if updatedTask.Title != "" {
+				tasks[i].Title = updatedTask.Title
+			}
+			if updatedTask.Description != "" {
+				tasks[i].Description = updatedTask.Description
+			}
+			if updatedTask.Status != "" {
+				tasks[i].Status = updatedTask.Status
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"message": "Task updated successfully",
+				"task":    tasks[i],
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusNotFound, gin.H{
+		"error": "Task not found"})
+}
+func deleteTaskById(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	for i, val := range tasks {
+		if val.ID == id {
+			tasks = append(tasks[:i], tasks[i+1:]...)
+			ctx.JSON(http.StatusOK, gin.H{
+				"message": "Task deleted successfully",
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusNotFound, gin.H{
+		"error": "Task not found"})
 }
