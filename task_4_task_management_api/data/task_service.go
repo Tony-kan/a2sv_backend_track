@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"task_4_task_management_api/models"
 	"time"
@@ -8,6 +9,15 @@ import (
 
 // Todo : create an interface,services and constructor for the task service
 // Todo : implement the methods of the interface
+// Todo : create error handling methods
+
+var (
+	ErrTaskNotFound  = errors.New("task not found")
+	ErrTaskExists    = errors.New("task already exists")
+	ErrInvalidTask   = errors.New("invalid task data")
+	ErrInvalidTaskID = errors.New("invalid task ID")
+)
+
 type TaskServices interface {
 	AddTask(task models.Task) error
 	RemoveTask(taskID string) error
@@ -56,7 +66,7 @@ func (service *TaskService) AddTask(task models.Task) error {
 	}
 
 	if task.ID == "" || task.Title == "" {
-		return fmt.Errorf("task ID and Title cannot be empty")
+		return ErrInvalidTask
 	}
 	task.Status = "Pending"
 
