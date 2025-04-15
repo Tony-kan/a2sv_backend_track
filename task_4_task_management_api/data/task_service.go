@@ -41,14 +41,18 @@ func NewTaskService() TaskServices {
 			Title:       "Task 1",
 			Description: "Description for Task 1",
 			Status:      "Pending",
-			DueDate:     time.Now(),
+			DueDate:     time.Now().AddDate(0, 0, 1),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
 		},
 		{
 			ID:          "2",
 			Title:       "Task 2",
 			Description: "Description for Task 2",
 			Status:      "Completed",
-			DueDate:     time.Now().AddDate(0, 0, 1),
+			DueDate:     time.Now().AddDate(0, 0, 3),
+			CreatedAt:   time.Now(),
+			UpdatedAt:   time.Now(),
 		},
 	}
 	for _, task := range defaultTask {
@@ -68,6 +72,15 @@ func (service *TaskService) AddTask(task models.Task) error {
 	if task.ID == "" || task.Title == "" {
 		return ErrInvalidTask
 	}
+
+	now := time.Now()
+	task.CreatedAt = now
+	task.UpdatedAt = now
+
+	if task.DueDate.IsZero() {
+		task.DueDate = now.AddDate(0, 0, 7)
+	}
+
 	task.Status = "Pending"
 
 	service.tasks[task.ID] = task
@@ -118,6 +131,13 @@ func (service *TaskService) UpdateTask(taskID string, task models.Task) error {
 			if task.Status != "" {
 				taskToUpdate.Status = task.Status
 			}
+			if !task.DueDate.IsZero() {
+				taskToUpdate.DueDate = task.DueDate
+			}
+
+			// Update the timestamp
+			taskToUpdate.UpdatedAt = time.Now()
+
 			service.tasks[i] = taskToUpdate
 			return nil
 		}

@@ -16,6 +16,6 @@ func main() {
 	router := gin.Default()
 	taskRouter.SetupRoutes(router)
 
-	router.Run(":8080")
+	router.Run("localhost:8080")
 	// router.Run(":8080") // Start the server on port 8080
 }

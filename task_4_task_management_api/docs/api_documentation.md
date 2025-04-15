@@ -4,6 +4,10 @@
 
 Develop a simple Task Management REST API using Go and the Gin Framework to perform basic CRUD operations for managing tasks.
 
+## Base URL
+
+`http://localhost:8080/api/v1/tasks`
+
 ## Endpoints
 
 ### `/tasks`
