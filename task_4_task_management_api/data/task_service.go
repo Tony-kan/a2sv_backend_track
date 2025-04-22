@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"task_4_task_management_api/models"
 	"time"
 )
@@ -27,13 +28,15 @@ type TaskServices interface {
 }
 
 type TaskService struct {
-	tasks map[string]models.Task
+	tasks  map[string]models.Task
+	nextID int
 }
 
 // Constructor which initializes 2 tasks in the memery during startup
 func NewTaskService() TaskServices {
 	service := &TaskService{
-		tasks: make(map[string]models.Task),
+		tasks:  make(map[string]models.Task),
+		nextID: 1,
 	}
 	defaultTask := []models.Task{
 		{
@@ -55,22 +58,26 @@ func NewTaskService() TaskServices {
 			UpdatedAt:   time.Now(),
 		},
 	}
+	maxID := 0
 	for _, task := range defaultTask {
 		service.tasks[task.ID] = task
+		idInt, err := strconv.Atoi(task.ID)
+		if err == nil && idInt > maxID {
+			maxID = idInt
+		}
 	}
-
+	service.nextID = maxID + 1
 	return service
 }
 
 func (service *TaskService) AddTask(task models.Task) error {
-	for _, tsk := range service.tasks {
-		if task.ID == tsk.ID {
-			return fmt.Errorf("task with id %s already exists", task.ID)
-		}
-	}
 
-	if task.ID == "" || task.Title == "" {
-		return ErrInvalidTask
+	task.ID = fmt.Sprintf("%d", service.nextID)
+	service.nextID++
+
+	if task.Title == "" {
+		// return ErrInvalidTask
+		return errors.New("invalid task title")
 	}
 
 	now := time.Now()
@@ -81,20 +88,21 @@ func (service *TaskService) AddTask(task models.Task) error {
 		task.DueDate = now.AddDate(0, 0, 7)
 	}
 
-	task.Status = "Pending"
+	if task.Status == "" {
+		task.Status = "Pending"
+	}
 
 	service.tasks[task.ID] = task
 	return nil
 }
 
 func (service *TaskService) RemoveTask(taskID string) error {
-	for _, task := range service.tasks {
-		if task.ID == taskID {
-			delete(service.tasks, taskID)
-			return nil
-		}
+	if _, exists := service.tasks[taskID]; !exists {
+		return fmt.Errorf("task with id %s not found", taskID)
 	}
-	return fmt.Errorf("task with id %s not found", taskID)
+	// return fmt.Errorf("task with id %s not found", taskID)
+	delete(service.tasks, taskID)
+	return nil
 }
 
 func (service *TaskService) GetTaskById(taskID string) (models.Task, error) {
