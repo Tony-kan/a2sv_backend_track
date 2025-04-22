@@ -6,6 +6,10 @@ import (
 	"task_4_task_management_api/routers"
 
 	"github.com/gin-gonic/gin"
+	_ "task_4_task_management_api/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -14,6 +18,7 @@ func main() {
 	taskRouter := routers.NewTaskRouter(taskController)
 
 	router := gin.Default()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	taskRouter.SetupRoutes(router)
 
 	router.Run("localhost:8080")
