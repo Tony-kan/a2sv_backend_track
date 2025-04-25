@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"strings"
 )
 
 var users = make(map[string]*User)
@@ -71,9 +73,49 @@ func main() {
 		ctx.JSON(200, gin.H{"message": "User logged in Successful", "jwtToken": jwtToken})
 	})
 
-	router.GET("/users", func(ctx *gin.Context) {
+	router.GET("/users", AuthMiddleware(), func(ctx *gin.Context) {
 		ctx.JSON(200, gin.H{"message": "Users list", "users": users})
 	})
 
+	router.GET("/secure", AuthMiddleware(), func(ctx *gin.Context) {
+		ctx.JSON(200, gin.H{"message": "This is the secure route"})
+	})
+
 	router.Run(":8080")
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		//Todo : Implement JWT validation logic
+		authHeader := ctx.Request.Header.Get("Authorization")
+
+		if authHeader == "" {
+			ctx.JSON(401, gin.H{"error": "Authorization header is required"})
+			ctx.Abort()
+			return
+		}
+
+		authParts := strings.Split(authHeader, " ")
+		if len(authParts) != 2 || strings.ToLower(authParts[0]) != "bearer" {
+			ctx.JSON(401, gin.H{"error": "Authorization header is invalid"})
+			ctx.Abort()
+			return
+		}
+
+		token, err := jwt.Parse(authParts[1], func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+			}
+			return jwtSecret, nil
+		})
+
+		if err != nil || !token.Valid {
+			ctx.JSON(401, gin.H{"error": "Authorization header is invalid"})
+			ctx.Abort()
+			return
+		}
+
+		ctx.Next()
+
+	}
 }
