@@ -2,17 +2,18 @@ package models
 
 import (
 	"encoding/json"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
 )
 
 type Task struct {
-	ID          string    `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Status      string    `json:"status"`
-	DueDate     time.Time `json:"due_date"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Title       string             `json:"title" bson:"title"`
+	Description string             `json:"description" bson:"description"`
+	Status      string             `json:"status" bson:"status"`
+	DueDate     time.Time          `json:"due_date" bson:"due_date"`
+	CreatedAt   time.Time          `json:"created_at" bson:"created_at"`
+	UpdatedAt   time.Time          `json:"updated_at" bson:"updated_at"`
 }
 
 func (t *Task) UnmarshalJSON(data []byte) error {

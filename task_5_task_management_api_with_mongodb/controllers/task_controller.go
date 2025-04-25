@@ -2,11 +2,11 @@ package controllers
 
 import (
 	"errors"
+	"github.com/gin-gonic/gin"
 	"net/http"
 	services "task_5_task_management_api_with_mongodb/data"
 	"task_5_task_management_api_with_mongodb/models"
-
-	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type TaskController struct {
@@ -37,15 +37,13 @@ func (controller *TaskController) AddTask(ctx *gin.Context) {
 		return
 	}
 	// createdTask, err := controller.taskService.AddTask(task)
-	err := controller.taskService.AddTask(task)
+	taskID, err := controller.taskService.AddTask(task)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusCreated, gin.H{"message": "Task added successfully"})
-
-	// ctx.JSON(http.StatusCreated, gin.H{"message": "Task added successfully", "task_id": createdTask.ID})
+	ctx.JSON(http.StatusCreated, gin.H{"message": "Task added successfully", "task_id": taskID})
 
 }
 
@@ -111,6 +109,7 @@ func (controller *TaskController) GetAllTasks(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{"number_of_tasks": len(tasks), "tasks": tasks})
 }
 
@@ -130,14 +129,47 @@ func (controller *TaskController) GetAllTasks(ctx *gin.Context) {
 func (controller *TaskController) UpdateTask(ctx *gin.Context) {
 	// return controller.taskService.UpdateTask(taskID, task)
 	taskID := ctx.Param("id")
-	var task models.Task
-	if err := ctx.ShouldBindJSON(&task); err != nil {
+	//var task models.Task
+	var updateData map[string]interface{}
+	
+	if err := ctx.ShouldBindJSON(&updateData); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := controller.taskService.UpdateTask(taskID, task); err != nil {
+	if dueDateStr, exists := updateData["due_date"]; exists {
+		if dateStr, ok := dueDateStr.(string); ok {
+			parsedDate, err := time.Parse("2006-01-02", dateStr)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid due_date format, use YYYY-MM-DD"})
+				return
+			}
+			updateData["due_date"] = parsedDate
+		} else {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "due_date must be a string"})
+			return
+		}
+	}
+
+	validUpdate := make(map[string]interface{})
+
+	for _, field := range []string{"title", "description", "status", "due_date"} {
+		if value, exists := updateData[field]; exists {
+			validUpdate[field] = value
+		}
+	}
+
+	if len(validUpdate) == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "no valid fields provided for update"})
+		return
+	}
+	if err := controller.taskService.UpdateTask(taskID, validUpdate); err != nil {
+		if errors.Is(err, services.ErrTaskNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{"message": "Task updated successfully"})
 }

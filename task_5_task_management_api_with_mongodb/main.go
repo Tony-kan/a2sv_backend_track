@@ -1,6 +1,13 @@
 package main
 
 import (
+	"context"
+	"github.com/joho/godotenv"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"log"
+	"os"
 	"task_5_task_management_api_with_mongodb/controllers"
 	services "task_5_task_management_api_with_mongodb/data"
 	"task_5_task_management_api_with_mongodb/routers"
@@ -13,7 +20,25 @@ import (
 )
 
 func main() {
-	taskService := services.NewTaskService() // Ensure NewTaskService returns services.TaskService
+	//  MongoDB Connection
+	godotenv.Load()
+	mongo_uri := os.Getenv("MONGO_URI")
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongo_uri))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Disconnect(context.Background())
+
+	err = client.Ping(context.Background(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db := client.Database("taskdb")
+	tasksCollection := db.Collection("tasks")
+
+	taskService := services.NewTaskService(tasksCollection)
+
 	taskController := controllers.NewTaskController(taskService)
 	taskRouter := routers.NewTaskRouter(taskController)
 
