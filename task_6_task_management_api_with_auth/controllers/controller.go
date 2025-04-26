@@ -235,7 +235,7 @@ func (controller *Controller) LoginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusCreated, gin.H{"message": "User Login successfully", "token": token})
+	ctx.JSON(http.StatusCreated, gin.H{"message": "User Logged in successfully", "token": token})
 
 }
 

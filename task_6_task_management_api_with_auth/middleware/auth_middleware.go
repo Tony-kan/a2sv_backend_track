@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,7 +10,8 @@ import (
 
 // Todo : Implementing JWT Validation logic
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+// var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+var jwtSecret = []byte("secret")
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {

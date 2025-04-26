@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"task_6_task_management_api_with_auth/models"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,18 +27,30 @@ type UserService struct {
 
 func NewUserService(userCollection *mongo.Collection) UserServices {
 	ctx := context.Background()
-	indexModel := mongo.IndexModel{
-		Keys: bson.D{{"createdAt", 1}},
+	// indexModel := mongo.IndexModel{
+	// 	Keys: bson.D{{"createdAt", 1}},
+	// }
+	indexModels := []mongo.IndexModel{
+		{
+			Keys:    bson.D{{Key: "username", Value: 1}},
+			Options: options.Index().SetUnique(true).SetName("uniq_username"),
+		},
+		{
+			Keys:    bson.D{{Key: "email", Value: 1}},
+			Options: options.Index().SetUnique(true).SetName("uniq_email"),
+		},
 	}
-	if _, err := userCollection.Indexes().CreateOne(ctx, indexModel); err != nil {
-		panic(fmt.Sprintf("Failed to create index: %v", err))
+
+	if _, err := userCollection.Indexes().CreateMany(ctx, indexModels); err != nil {
+		panic(fmt.Sprintf("Failed to create indexes: %v", err))
 	}
 	return &UserService{
 		userCollection: userCollection,
 	}
 }
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+// var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+var jwtSecret = []byte("secret")
 
 func (service *UserService) RegisterUser(user models.User) (string, error) {
 
@@ -63,6 +75,9 @@ func (service *UserService) RegisterUser(user models.User) (string, error) {
 
 	result, err := service.userCollection.InsertOne(context.Background(), user)
 	if err != nil {
+		if isDupKey(err) {
+			return "", fmt.Errorf("username or email already exists")
+		}
 		return "", fmt.Errorf("failed to create user: %v", err)
 	}
 
@@ -74,16 +89,16 @@ func (service *UserService) LoginUser(loginRequest models.LoginRequest) (string,
 	var user models.User
 	err := service.userCollection.FindOne(context.Background(), bson.M{"email": loginRequest.Email}).Decode(&user)
 	if err != nil {
-		return "", fmt.Errorf("failed to find user: %v", err)
+		return "", fmt.Errorf("failed to find user with email: %v ", loginRequest.Email)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
 		return "", fmt.Errorf("invalid credentials: %v", err)
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, jwt.MapClaims{
-		"username": user.Username,
-		"email":    user.Email,
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.ID,
+		"email":   user.Email,
 	})
 
 	jwtToken, err := token.SignedString(jwtSecret)
@@ -92,14 +107,12 @@ func (service *UserService) LoginUser(loginRequest models.LoginRequest) (string,
 		return "", fmt.Errorf("failed to create token: %v", err)
 	}
 
-	// if user.Password != loginRequest.Password {
-	// 	return "", fmt.Errorf("invalid credentials")
-	// }
+	
 	return jwtToken, nil
 }
 
 func (service *UserService) GetAllUsers() ([]models.User, error) {
-	//var tasks []models.Task
+	
 	users := make([]models.User, 0)
 
 	cur, err := service.userCollection.Find(context.Background(), bson.M{})
@@ -122,4 +135,15 @@ func (service *UserService) GetAllUsers() ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+func isDupKey(err error) bool {
+	if we, ok := err.(mongo.WriteException); ok {
+		for _, e := range we.WriteErrors {
+			if e.Code == 11000 {
+				return true
+			}
+		}
+	}
+	return false
 }
