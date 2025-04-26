@@ -2,18 +2,21 @@ package main
 
 import (
 	"context"
+
 	"github.com/joho/godotenv"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"os"
 	"task_6_task_management_api_with_auth/controllers"
 	services "task_6_task_management_api_with_auth/data"
 	"task_6_task_management_api_with_auth/routers"
 
-	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
 	_ "task_6_task_management_api_with_auth/docs"
+
+	"github.com/gin-gonic/gin"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -36,11 +39,13 @@ func main() {
 
 	db := client.Database("taskdb")
 	tasksCollection := db.Collection("tasks")
+	userCollection := db.Collection("users")
 
 	taskService := services.NewTaskService(tasksCollection)
+	userService := services.NewUserService(userCollection)
 
-	taskController := controllers.NewTaskController(taskService)
-	taskRouter := routers.NewTaskRouter(taskController)
+	controller := controllers.NewController(taskService, userService)
+	taskRouter := routers.NewRouter(controller)
 
 	router := gin.Default()
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

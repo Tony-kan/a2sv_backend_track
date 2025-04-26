@@ -6,24 +6,30 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TaskRouter struct {
-	taskController *controllers.TaskController
+type Router struct {
+	generalController *controllers.Controller
 }
 
-func NewTaskRouter(taskController *controllers.TaskController) *TaskRouter {
-	return &TaskRouter{
-		taskController: taskController,
+func NewRouter(controller *controllers.Controller) *Router {
+	return &Router{
+		generalController: controller,
 	}
 }
 
-func (taskRouter *TaskRouter) SetupRoutes(router *gin.Engine) {
-	api := router.Group("/api/v1/tasks")
+func (generalRouter *Router) SetupRoutes(router *gin.Engine) {
+	taskEndpoints := router.Group("/api/v1/tasks")
 	{
-		api.POST("", taskRouter.taskController.AddTask)
-		api.DELETE("/:id", taskRouter.taskController.RemoveTask)
-		api.GET("/:id", taskRouter.taskController.GetTaskById)
-		api.GET("", taskRouter.taskController.GetAllTasks)
-		api.PUT("/:id", taskRouter.taskController.UpdateTask)
-		api.PATCH("/:id", taskRouter.taskController.UpdateTask)
+		taskEndpoints.POST("", generalRouter.generalController.AddTask)
+		taskEndpoints.DELETE("/:id", generalRouter.generalController.RemoveTask)
+		taskEndpoints.GET("/:id", generalRouter.generalController.GetTaskById)
+		taskEndpoints.GET("", generalRouter.generalController.GetAllTasks)
+		taskEndpoints.PUT("/:id", generalRouter.generalController.UpdateTask)
+		taskEndpoints.PATCH("/:id", generalRouter.generalController.UpdateTask)
+	}
+	userEndpoints := router.Group("/api/v1/users")
+	{
+		userEndpoints.GET("", generalRouter.generalController.GetAllUsers)
+		userEndpoints.POST("/register", generalRouter.generalController.RegisterUser)
+		userEndpoints.POST("/login", generalRouter.generalController.LoginUser)
 	}
 }
