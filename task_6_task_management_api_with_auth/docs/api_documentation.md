@@ -6,7 +6,7 @@ Enhance the existing Task Management REST API by integrating MongoDB as the pers
 
 ## Base URL
 
-`http://localhost:8080/api/v1/tasks`
+`http://localhost:8080/api/v1`
 
 ## Postman Documentation
 
@@ -22,13 +22,11 @@ To connect to MongoDB, create a `.env` file in the root directory of the project
 
 ```
 MONGO_URI=mongodb://<username>:<password>@<host>:<port>/<database>
+JWT_SECRET=your_jwt_secret
 ```
 
-- Replace `<username>`, `<password>`, `<host>`, `<port>`, and `<database>` with your MongoDB credentials and connection details.
-- Example:
-  ```
-  MONGO_URI=mongodb://admin:password@localhost:27017/taskdb
-  ```
+- Replace `<username>`, `<password>`, `<host>`, `<port>`, and `<database>` with your MongoDB credentials.
+- Replace `your_jwt_secret` with a secure secret key for signing JWT tokens.
 
 Ensure the `.env` file is included in your `.gitignore` file to avoid exposing sensitive information.
 
@@ -82,7 +80,7 @@ The following operations are now implemented using MongoDB:
       "title": "Task Title",
       "description": "Task Description",
       "due_date": "2023-12-31",
-      "status": "Pending"
+      "status": "Pending" // optional : default pending if not specified
     }
     ```
   - **Response**:
@@ -116,10 +114,10 @@ The following operations are now implemented using MongoDB:
   - **Request**:
     ```json
     {
-      "title": "Updated Task Title",
-      "description": "Updated Task Description",
-      "due_date": "2024-01-15",
-      "status": "Completed"
+      "title": "Updated Task Title", // optional
+      "description": "Updated Task Description", // optional
+      "due_date": "2024-01-15", // optional
+      "status": "Completed" // optional
     }
     ```
   - **Response**:
@@ -141,17 +139,79 @@ The following operations are now implemented using MongoDB:
     }
     ```
 
+### `/register`
+
+- **POST**: Register a new user.
+  - **Request**:
+    ```json
+    {
+      "username": "john_doe",
+      "email": "john@example.com",
+      "password": "securepassword",
+      "role": "user" // default: user if not specified
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "id": "60c72b2f9b1d8e001c8e4d5a",
+      "username": "john_doe",
+      "email": "john@example.com",
+      "role": "user",
+      "created_at": "2025-04-26T12:00:00Z"
+    }
+    ```
+
+### `/login`
+
+- **POST**: Authenticate a user and generate a JWT token.
+  - **Request**:
+    ```json
+    {
+      "email": "john@example.com",
+      "password": "securepassword"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "user logged in successfully",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+    ```
+
+### `/users`
+
+- **GET**: Retrieve a list of all users (Admin only).
+  - **Authorization**: Requires a valid JWT token with the `admin` role.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "60c72b2f9b1d8e001c8e4d5a",
+        "username": "john_doe",
+        "email": "john@example.com",
+        "role": "user",
+        "created_at": "2025-04-26T12:00:00Z"
+      }
+    ]
+    ```
+
 ## Folder Structure
 
 ```
 task_manager/
 ├── main.go
 ├── controllers/
-│   └── task_controller.go
+│   └── controller.go
 ├── models/
-│   └── task.go
+│   ├── task.go
+│   └── user.go
 ├── data/
-│   └── task_service.go
+│   ├── task_service.go
+│   └── user_service.go
+├── middleware/
+│   └── auth_middleware.go
 ├── router/
 │   └── router.go
 ├── docs/
@@ -160,17 +220,23 @@ task_manager/
 ```
 
 - **main.go**: Entry point of the application.
-- **controllers/task_controller.go**: Handles incoming HTTP requests and invokes the appropriate service methods.
+- **controllers/controller.go**: Handles HTTP requests for both tasks and user authentication.
 - **models/task.go**: Defines the `Task` struct.
-- **data/task_service.go**: Contains business logic and MongoDB operations.
+- **models/user.go**: Defines the `User` struct and role types.
+- **data/task_service.go**: Contains business logic and data manipulation functions for tasks.
+- **data/user_service.go**: Contains business logic and data manipulation functions for users, including password hashing.
+- **middleware/auth_middleware.go**: Implements middleware to validate JWT tokens for authentication and authorization.
 - **router/router.go**: Sets up the routes and initializes the Gin router.
 - **docs/api_documentation.md**: Contains API documentation and other related documentation.
 - **go.mod**: Defines the module and its dependencies.
 
 ## Evaluation Criteria
 
-1. **MongoDB Integration**: Successful integration of MongoDB as the persistent data storage solution.
-2. **CRUD Operations**: Correct implementation of CRUD operations using the MongoDB Go Driver.
-3. **Error Handling**: Proper error handling for MongoDB operations and network/database errors.
-4. **Data Verification**: Verification of data correctness by testing API endpoints and querying MongoDB directly.
-5. **Documentation**: Clear and comprehensive documentation for MongoDB integration and API changes.
+## Evaluation Criteria
+
+1. **User Management**: Successful implementation of user registration and login.
+2. **JWT Authentication**: Proper generation and validation of JWT tokens.
+3. **Access Control**: Correct enforcement of role-based access control for protected routes.
+4. **Security**: Secure storage and transmission of user credentials using encryption and hashing.
+5. **Testing**: Verification of authentication and authorization functionality through API testing.
+6. **Documentation**: Clear and comprehensive documentation for authentication and authorization processes.
