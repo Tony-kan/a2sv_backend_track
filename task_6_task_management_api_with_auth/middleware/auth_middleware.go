@@ -44,7 +44,51 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			ctx.JSON(401, gin.H{"error": "Invalid token claims"})
+			ctx.Abort()
+			return
+		}
+
+		roleStr, ok := claims["role"].(string)
+
+		if !ok {
+			ctx.JSON(401, gin.H{"error": "Role claim is missing or invalid"})
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set("role", roleStr)
 		ctx.Next()
 
+	}
+}
+
+func RequireRole(allowedRoles ...string) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		role, exists := ctx.Get("role")
+		if !exists {
+			ctx.JSON(403, gin.H{"error": "Forbidden: No role associated with user"})
+			ctx.Abort()
+			return
+		}
+
+		roleStr, ok := role.(string)
+		if !ok {
+			ctx.JSON(403, gin.H{"error": "Forbidden: Invalid role type"})
+			ctx.Abort()
+			return
+		}
+
+		for _, allowedRole := range allowedRoles {
+			if roleStr == allowedRole {
+				ctx.Next()
+				return
+			}
+		}
+
+		ctx.JSON(403, gin.H{"error": "Forbidden: Insufficient permissions"})
+		ctx.Abort()
 	}
 }

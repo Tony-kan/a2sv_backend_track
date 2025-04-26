@@ -99,6 +99,8 @@ func (service *UserService) LoginUser(loginRequest models.LoginRequest) (string,
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
 		"email":   user.Email,
+		"role":    user.Role,
+		"exp":     time.Now().Add(72 * time.Hour).Unix(),
 	})
 
 	jwtToken, err := token.SignedString(jwtSecret)
@@ -107,12 +109,11 @@ func (service *UserService) LoginUser(loginRequest models.LoginRequest) (string,
 		return "", fmt.Errorf("failed to create token: %v", err)
 	}
 
-	
 	return jwtToken, nil
 }
 
 func (service *UserService) GetAllUsers() ([]models.User, error) {
-	
+
 	users := make([]models.User, 0)
 
 	cur, err := service.userCollection.Find(context.Background(), bson.M{})

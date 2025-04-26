@@ -2,6 +2,7 @@ package routers
 
 import (
 	"task_6_task_management_api_with_auth/controllers"
+	"task_6_task_management_api_with_auth/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,8 +17,12 @@ func NewRouter(controller *controllers.Controller) *Router {
 	}
 }
 
+// Todo : only admin can access all users details
+// Todo : all users can view,create,update & delete tasks
+
 func (generalRouter *Router) SetupRoutes(router *gin.Engine) {
 	taskEndpoints := router.Group("/api/v1/tasks")
+	taskEndpoints.Use(middleware.AuthMiddleware())
 	{
 		taskEndpoints.POST("", generalRouter.generalController.AddTask)
 		taskEndpoints.DELETE("/:id", generalRouter.generalController.RemoveTask)
@@ -28,7 +33,7 @@ func (generalRouter *Router) SetupRoutes(router *gin.Engine) {
 	}
 	userEndpoints := router.Group("/api/v1/users")
 	{
-		userEndpoints.GET("", generalRouter.generalController.GetAllUsers)
+		userEndpoints.GET("", middleware.AuthMiddleware(), middleware.RequireRole("admin"), generalRouter.generalController.GetAllUsers)
 		userEndpoints.POST("/register", generalRouter.generalController.RegisterUser)
 		userEndpoints.POST("/login", generalRouter.generalController.LoginUser)
 	}
