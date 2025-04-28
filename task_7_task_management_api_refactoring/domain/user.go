@@ -1,6 +1,7 @@
-package models
+package domain
 
 import (
+	"context"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -23,7 +24,14 @@ type User struct {
 	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`
 }
 
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type UserRepository interface {
+	RegisterUser(ctx context.Context, user *User) (string, error)
+	LoginUser(ctx context.Context, loginRequest LoginRequest) (string, error)
+	GetAllUsers(ctx context.Context) ([]*User, error)
+}
+
+type UserUsecase interface {
+	RegisterUser(ctx context.Context, user *User) (string, error)
+	LoginUser(ctx context.Context, loginRequest LoginRequest) (string, error)
+	GetAllUsers(ctx context.Context) ([]*User, error)
 }

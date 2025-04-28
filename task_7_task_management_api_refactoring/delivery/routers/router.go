@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"task_7_task_management_api_refactoring/controllers"
-	"task_7_task_management_api_refactoring/middleware"
+	"task_7_task_management_api_refactoring/Delivery/controllers"
+	Infrastructure "task_7_task_management_api_refactoring/infrastructure"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +22,7 @@ func NewRouter(controller *controllers.Controller) *Router {
 
 func (generalRouter *Router) SetupRoutes(router *gin.Engine) {
 	taskEndpoints := router.Group("/api/v1/tasks")
-	taskEndpoints.Use(middleware.AuthMiddleware())
+	taskEndpoints.Use(Infrastructure.AuthMiddleware())
 	{
 		taskEndpoints.POST("", generalRouter.generalController.AddTask)
 		taskEndpoints.DELETE("/:id", generalRouter.generalController.RemoveTask)
@@ -33,7 +33,7 @@ func (generalRouter *Router) SetupRoutes(router *gin.Engine) {
 	}
 	userEndpoints := router.Group("/api/v1/users")
 	{
-		userEndpoints.GET("", middleware.AuthMiddleware(), middleware.RequireRole("admin"), generalRouter.generalController.GetAllUsers)
+		userEndpoints.GET("", Infrastructure.AuthMiddleware(), Infrastructure.RequireRole("admin"), generalRouter.generalController.GetAllUsers)
 		userEndpoints.POST("/register", generalRouter.generalController.RegisterUser)
 		userEndpoints.POST("/login", generalRouter.generalController.LoginUser)
 	}
