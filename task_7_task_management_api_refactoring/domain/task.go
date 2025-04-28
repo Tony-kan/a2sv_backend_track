@@ -25,7 +25,7 @@ type TaskRepository interface {
 	GetAllTasks(ctx context.Context) ([]*Task, error)
 	GetTaskById(ctx context.Context, taskID string) (*Task, error)
 	RemoveTask(ctx context.Context, taskID string) error
-	UpdateTask(taskID string, updateFields map[string]interface{}) error
+	UpdateTask(ctx context.Context, taskID string, updateFields map[string]interface{}) error
 }
 
 type TaskUsecase interface {
@@ -33,7 +33,7 @@ type TaskUsecase interface {
 	GetAllTasks(ctx context.Context) ([]*Task, error)
 	GetTaskById(ctx context.Context, taskID string) (*Task, error)
 	RemoveTask(ctx context.Context, taskID string) error
-	UpdateTask(taskID string, updateFields map[string]interface{}) error
+	UpdateTask(ctx context.Context, taskID string, updateFields map[string]interface{}) error
 }
 
 // UnmarshalJSON is a custom JSON unmarshaller for the Task struct.

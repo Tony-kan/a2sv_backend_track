@@ -211,7 +211,7 @@ func (controller *Controller) RegisterUser(ctx *gin.Context) {
 	// createdTask, err := controller.taskService.AddTask(task)
 	// taskID, err := controller.taskService.AddTask(task)
 	// userId, err := controller.userService.RegisterUser(user)
-	userId, err := controller.userUsecase.RegisterUser(ctx, user)
+	userId, err := controller.userUsecase.RegisterUser(ctx, &user)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

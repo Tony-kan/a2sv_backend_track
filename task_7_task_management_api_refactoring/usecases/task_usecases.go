@@ -34,7 +34,7 @@ func (usecase *TaskUsecase) GetTaskById(ctx context.Context, taskID string) (*do
 	return usecase.TaskRepository.GetTaskById(ctx, taskID)
 }
 func (usecase *TaskUsecase) GetAllTasks(ctx context.Context) ([]*domain.Task, error) {
-	_, cancel := context.WithTimeout(ctx, usecase.ContextTimeout)
+	ctx, cancel := context.WithTimeout(ctx, usecase.ContextTimeout)
 	defer cancel()
 	return usecase.TaskRepository.GetAllTasks(ctx)
 }

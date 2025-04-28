@@ -95,7 +95,7 @@ func (repository *taskRepository) GetTaskById(ctx context.Context, taskID string
 
 func (repository *taskRepository) GetAllTasks(ctx context.Context) ([]*domain.Task, error) {
 	//var tasks []models.Task
-	tasks := make([]domain.Task, 0)
+	tasks := make([]*domain.Task, 0)
 
 	cur, err := repository.GetCollection().Find(context.Background(), bson.M{})
 	if err != nil {
@@ -108,7 +108,7 @@ func (repository *taskRepository) GetAllTasks(ctx context.Context) ([]*domain.Ta
 		if err := cur.Decode(&task); err != nil {
 			return nil, fmt.Errorf("failed to decode task: %v", err)
 		}
-		tasks = append(tasks, task)
+		tasks = append(tasks, &task)
 	}
 	if err := cur.Err(); err != nil {
 		return nil, fmt.Errorf("failed to get all tasks: %v", err)
