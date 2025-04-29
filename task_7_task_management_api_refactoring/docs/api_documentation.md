@@ -236,64 +236,6 @@ Ensure the `.env` file is included in your `.gitignore` file to avoid exposing s
     }
     ```
 
-    ### `/register`
-
-- **POST**: Register a new user.
-  - **Request**:
-    ```json
-    {
-      "username": "john_doe",
-      "email": "john@example.com",
-      "password": "securepassword",
-      "role": "user" // default: user if not specified
-    }
-    ```
-  - **Response**:
-    ```json
-    {
-      "id": "60c72b2f9b1d8e001c8e4d5a",
-      "username": "john_doe",
-      "email": "john@example.com",
-      "role": "user",
-      "created_at": "2025-04-26T12:00:00Z"
-    }
-    ```
-
-### `/login`
-
-- **POST**: Authenticate a user and generate a JWT token.
-  - **Request**:
-    ```json
-    {
-      "email": "john@example.com",
-      "password": "securepassword"
-    }
-    ```
-  - **Response**:
-    ```json
-    {
-      "message": "user logged in successfully",
-      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
-    ```
-
-### `/users`
-
-- **GET**: Retrieve a list of all users (Admin only).
-  - **Authorization**: Requires a valid JWT token with the `admin` role.
-  - **Response**:
-    ```json
-    [
-      {
-        "id": "60c72b2f9b1d8e001c8e4d5a",
-        "username": "john_doe",
-        "email": "john@example.com",
-        "role": "user",
-        "created_at": "2025-04-26T12:00:00Z"
-      }
-    ]
-    ```
-
 ## Evaluation Criteria
 
 1. **Adherence to Clean Architecture**: Clear separation of concerns and dependency inversion.
