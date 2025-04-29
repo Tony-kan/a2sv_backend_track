@@ -2,7 +2,7 @@
 
 ## Objective
 
-Enhance the existing Task Management REST API by integrating MongoDB as the persistent data storage solution using the Mongo Go Driver. This replaces the in-memory database to provide data persistence across API restarts.
+Refactor the existing Task Management REST API using Clean Architecture principles to improve maintainability, testability, and scalability.
 
 ## Base URL
 
@@ -14,11 +14,65 @@ You can find the Postman documentation for this API at the following URL:
 [Postman Documentation](http://localhost:8080/swagger/doc.json)  
 [Swagger Documentation](http://localhost:8080/swagger/index.html)
 
+## Project Structure
+
+```
+task-manager/
+├── delivery/
+│   ├── main.go
+│   ├── controllers/
+│   │   └── controller.go
+│   └── routers/
+│       └── router.go
+├── domain/
+│   └── task.go
+|   └── user.go
+|   └── login.go
+|   └── error_response.go
+├── infrastructure/
+│   ├── auth_middleWare.go
+│   ├── jwt_service.go
+│   └── password_service.go
+├── repositories/
+│   ├── task_repository.go
+│   └── user_repository.go
+└── usecases/
+    ├── task_usecases.go
+    └── user_usecases.go
+```
+
+### Layers Overview
+
+- **Delivery/**: Handles incoming HTTP requests and responses.
+
+  - **main.go**: Sets up the HTTP server, initializes dependencies, and defines the routing configuration.
+  - **controllers/controller.go**: Handles HTTP requests and invokes the appropriate use case methods.
+  - **routers/router.go**: Sets up the routes and initializes the Gin router.
+
+- **Domain/**: Defines the core business entities and logic.
+
+  - **domain.go**: Contains the core business entities such as `Task` and `User` structs.
+
+- **Infrastructure/**: Implements external dependencies and services.
+
+  - **auth_middleWare.go**: Middleware to handle authentication and authorization using JWT tokens.
+  - **jwt_service.go**: Functions to generate and validate JWT tokens.
+  - **password_service.go**: Functions for hashing and comparing passwords to ensure secure storage of user credentials.
+
+- **Repositories/**: Abstracts the data access logic.
+
+  - **task_repository.go**: Interface and implementation for task data access operations.
+  - **user_repository.go**: Interface and implementation for user data access operations.
+
+- **Usecases/**: Contains the application-specific business rules.
+  - **task_usecases.go**: Implements the use cases related to tasks, such as creating, updating, retrieving, and deleting tasks.
+  - **user_usecases.go**: Implements the use cases related to users, such as registering and logging in.
+
 ## Environment Setup
 
 ### Create a `.env` File
 
-To connect to MongoDB, create a `.env` file in the root directory of the project and add the following line:
+To connect to MongoDB and configure JWT, create a `.env` file in the root directory of the project and add the following lines:
 
 ```
 MONGO_URI=mongodb://<username>:<password>@<host>:<port>/<database>
@@ -30,114 +84,9 @@ JWT_SECRET=your_jwt_secret
 
 Ensure the `.env` file is included in your `.gitignore` file to avoid exposing sensitive information.
 
-## MongoDB Integration
-
-### Enhancements
-
-- **Persistent Data Storage**: MongoDB is now used as the database for storing tasks, replacing the in-memory database.
-- **MongoDB Go Driver**: The API uses the official MongoDB Go Driver (`go.mongodb.org/mongo-driver`) for database operations.
-- **Backward Compatibility**: The API maintains the same endpoint structure and behavior as the previous version.
-
-### CRUD Operations with MongoDB
-
-The following operations are now implemented using MongoDB:
-
-1. **Create Task**: Insert a new task into the MongoDB collection.
-2. **Retrieve All Tasks**: Fetch all tasks from the MongoDB collection.
-3. **Retrieve Task by ID**: Fetch a specific task by its ID from MongoDB.
-4. **Update Task**: Update an existing task in MongoDB.
-5. **Delete Task**: Remove a task from MongoDB.
-
-### Testing MongoDB Integration
-
-- Use Postman or curl to test the API endpoints.
-- Verify data persistence by querying the MongoDB database directly or using tools like MongoDB Compass.
-- Ensure proper error handling for scenarios such as invalid requests, network errors, and database errors.
-
 ## Endpoints
 
-### `/tasks`
-
-- **GET**: Retrieve a list of all tasks from MongoDB.
-
-  - **Response**:
-    ```json
-    [
-      {
-        "id": "60c72b2f9b1d8e001c8e4d5a",
-        "title": "Task Title",
-        "description": "Task Description",
-        "due_date": "2023-12-31",
-        "status": "Pending"
-      }
-    ]
-    ```
-
-- **POST**: Create a new task in MongoDB.
-  - **Request**:
-    ```json
-    {
-      "title": "Task Title",
-      "description": "Task Description",
-      "due_date": "2023-12-31",
-      "status": "Pending" // optional : default pending if not specified
-    }
-    ```
-  - **Response**:
-    ```json
-    {
-      "id": "60c72b2f9b1d8e001c8e4d5a",
-      "title": "Task Title",
-      "description": "Task Description",
-      "due_date": "2023-12-31",
-      "status": "Pending"
-    }
-    ```
-
-### `/tasks/:id`
-
-- **GET**: Retrieve the details of a specific task by its ID from MongoDB.
-
-  - **Response**:
-    ```json
-    {
-      "id": "60c72b2f9b1d8e001c8e4d5a",
-      "title": "Task Title",
-      "description": "Task Description",
-      "due_date": "2023-12-31",
-      "status": "Pending"
-    }
-    ```
-
-- **PUT**: Update a specific task in MongoDB.
-
-  - **Request**:
-    ```json
-    {
-      "title": "Updated Task Title", // optional
-      "description": "Updated Task Description", // optional
-      "due_date": "2024-01-15", // optional
-      "status": "Completed" // optional
-    }
-    ```
-  - **Response**:
-    ```json
-    {
-      "id": "60c72b2f9b1d8e001c8e4d5a",
-      "title": "Updated Task Title",
-      "description": "Updated Task Description",
-      "due_date": "2024-01-15",
-      "status": "Completed"
-    }
-    ```
-
-- **DELETE**: Delete a specific task by its ID from MongoDB.
-  - **Response**:
-    ```json
-    {
-      "message": "Task deleted successfully"
-    }
-    ```
+### `/users`
 
 ### `/register`
 
@@ -197,46 +146,160 @@ The following operations are now implemented using MongoDB:
     ]
     ```
 
-## Folder Structure
+### `/tasks`
 
-```
-task_manager/
-├── main.go
-├── controllers/
-│   └── controller.go
-├── models/
-│   ├── task.go
-│   └── user.go
-├── data/
-│   ├── task_service.go
-│   └── user_service.go
-├── middleware/
-│   └── auth_middleware.go
-├── router/
-│   └── router.go
-├── docs/
-│   └── api_documentation.md
-└── go.mod
-```
+- **GET**: Retrieve a list of all tasks.
 
-- **main.go**: Entry point of the application.
-- **controllers/controller.go**: Handles HTTP requests for both tasks and user authentication.
-- **models/task.go**: Defines the `Task` struct.
-- **models/user.go**: Defines the `User` struct and role types.
-- **data/task_service.go**: Contains business logic and data manipulation functions for tasks.
-- **data/user_service.go**: Contains business logic and data manipulation functions for users, including password hashing.
-- **middleware/auth_middleware.go**: Implements middleware to validate JWT tokens for authentication and authorization.
-- **router/router.go**: Sets up the routes and initializes the Gin router.
-- **docs/api_documentation.md**: Contains API documentation and other related documentation.
-- **go.mod**: Defines the module and its dependencies.
+  - **URL**: `http://localhost:8080/api/v1/tasks`
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "60c72b2f9b1d8e001c8e4d5a",
+        "title": "Task Title",
+        "description": "Task Description",
+        "due_date": "2023-12-31",
+        "status": "Pending"
+      }
+    ]
+    ```
+
+- **POST**: Create a new task.
+  - **URL**: `http://localhost:8080/api/v1/tasks`
+  - **Request**:
+    ```json
+    {
+      "title": "Task Title",
+      "description": "Task Description",
+      "due_date": "2023-12-31",
+      "status": "Pending"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "id": "60c72b2f9b1d8e001c8e4d5a",
+      "title": "Task Title",
+      "description": "Task Description",
+      "due_date": "2023-12-31",
+      "status": "Pending"
+    }
+    ```
+
+### `/tasks/:id`
+
+- **GET**: Retrieve the details of a specific task by its ID.
+
+  - **URL**: `http://localhost:8080/api/v1/tasks/:id`
+  - **Response**:
+    ```json
+    {
+      "id": "60c72b2f9b1d8e001c8e4d5a",
+      "title": "Task Title",
+      "description": "Task Description",
+      "due_date": "2023-12-31",
+      "status": "Pending"
+    }
+    ```
+
+- **PUT**: Update a specific task.
+
+  - **URL**: `http://localhost:8080/api/v1/tasks/:id`
+  - **Request**:
+    ```json
+    {
+      "title": "Updated Task Title",
+      "description": "Updated Task Description",
+      "due_date": "2024-01-15",
+      "status": "Completed"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "id": "60c72b2f9b1d8e001c8e4d5a",
+      "title": "Updated Task Title",
+      "description": "Updated Task Description",
+      "due_date": "2024-01-15",
+      "status": "Completed"
+    }
+    ```
+
+- **DELETE**: Delete a specific task by its ID.
+
+  - **URL**: `http://localhost:8080/api/v1/tasks/:id`
+  - **Response**:
+
+    ```json
+    {
+      "message": "Task deleted successfully"
+    }
+    ```
+
+    ### `/register`
+
+- **POST**: Register a new user.
+  - **Request**:
+    ```json
+    {
+      "username": "john_doe",
+      "email": "john@example.com",
+      "password": "securepassword",
+      "role": "user" // default: user if not specified
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "id": "60c72b2f9b1d8e001c8e4d5a",
+      "username": "john_doe",
+      "email": "john@example.com",
+      "role": "user",
+      "created_at": "2025-04-26T12:00:00Z"
+    }
+    ```
+
+### `/login`
+
+- **POST**: Authenticate a user and generate a JWT token.
+  - **Request**:
+    ```json
+    {
+      "email": "john@example.com",
+      "password": "securepassword"
+    }
+    ```
+  - **Response**:
+    ```json
+    {
+      "message": "user logged in successfully",
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+    }
+    ```
+
+### `/users`
+
+- **GET**: Retrieve a list of all users (Admin only).
+  - **Authorization**: Requires a valid JWT token with the `admin` role.
+  - **Response**:
+    ```json
+    [
+      {
+        "id": "60c72b2f9b1d8e001c8e4d5a",
+        "username": "john_doe",
+        "email": "john@example.com",
+        "role": "user",
+        "created_at": "2025-04-26T12:00:00Z"
+      }
+    ]
+    ```
 
 ## Evaluation Criteria
 
-## Evaluation Criteria
-
-1. **User Management**: Successful implementation of user registration and login.
-2. **JWT Authentication**: Proper generation and validation of JWT tokens.
-3. **Access Control**: Correct enforcement of role-based access control for protected routes.
-4. **Security**: Secure storage and transmission of user credentials using encryption and hashing.
-5. **Testing**: Verification of authentication and authorization functionality through API testing.
-6. **Documentation**: Clear and comprehensive documentation for authentication and authorization processes.
+1. **Adherence to Clean Architecture**: Clear separation of concerns and dependency inversion.
+2. **Code Organization**: Well-structured layers with distinct responsibilities.
+3. **Domain Models and Use Cases**: Decoupled and reusable business logic.
+4. **Abstraction of Dependencies**: Interfaces for external dependencies to enable easy substitution and testing.
+5. **Backward Compatibility**: Maintains existing API functionality.
+6. **Documentation**: Comprehensive documentation of the refactored architecture and design decisions.
+7. **Testing**: Unit tests for critical components to ensure correctness and maintainability.
