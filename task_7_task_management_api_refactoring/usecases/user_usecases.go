@@ -18,20 +18,20 @@ func NewUserUsecase(userRepository domain.UserRepository, timeout time.Duration)
 	}
 }
 
-func (usecase *UserUsecase) RegisterUser(user *domain.User) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), usecase.ContextTimeout)
+func (usecase *UserUsecase) RegisterUser(ctx context.Context, user *domain.User) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.ContextTimeout)
 	defer cancel()
 
 	return usecase.UserRepository.RegisterUser(ctx, user)
 }
-func (usecase *UserUsecase) LoginUser(loginRequest domain.LoginRequest) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), usecase.ContextTimeout)
+func (usecase *UserUsecase) LoginUser(ctx context.Context, loginRequest domain.LoginRequest) (string, error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.ContextTimeout)
 	defer cancel()
 
 	return usecase.UserRepository.LoginUser(ctx, loginRequest)
 }
-func (usecase *UserUsecase) GetAllUsers() ([]*domain.User, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), usecase.ContextTimeout)
+func (usecase *UserUsecase) GetAllUsers(ctx context.Context) ([]*domain.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, usecase.ContextTimeout)
 	defer cancel()
 
 	return usecase.UserRepository.GetAllUsers(ctx)

@@ -3,34 +3,46 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"strings"
 	"task_7_task_management_api_refactoring/domain"
+	"task_7_task_management_api_refactoring/infrastructure"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"golang.org/x/crypto/bcrypt"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type userRepository struct {
-	database   mongo.Database
+	database   *mongo.Database
 	collection string
 }
 
-func NewUserRepository(database mongo.Database, collection string) domain.UserRepository {
+func NewUserRepository(database *mongo.Database, collection string) domain.UserRepository {
 	return &userRepository{
 		database:   database,
 		collection: collection,
 	}
 }
 
-var jwtSecret = []byte("secret")
-
 func (repository *userRepository) GetCollection() *mongo.Collection {
 	return repository.database.Collection(repository.collection)
 }
 func (repository *userRepository) RegisterUser(ctx context.Context, user *domain.User) (string, error) {
+
+	if strings.TrimSpace(user.Password) == "" {
+		return "", domain.ErrEmptyPassword
+	}
+
+	if user.Email == "" || user.Username == "" {
+		return "", fmt.Errorf("username and email are required")
+	}
+
+	hashedPassword, err1 := infrastructure.HashPassword(user.Password)
+	if err1 != nil {
+		return "", fmt.Errorf("failed to hash password: %v", err1)
+	}
+
 	user.ID = primitive.NewObjectID()
 	now := time.Now()
 	user.CreatedAt = now
@@ -38,6 +50,9 @@ func (repository *userRepository) RegisterUser(ctx context.Context, user *domain
 	if user.Role == "" {
 		user.Role = "user"
 	}
+
+	user.Password = hashedPassword
+
 	_, err := repository.GetCollection().InsertOne(ctx, user)
 	if err != nil {
 		if isDupKey(err) {
@@ -56,20 +71,33 @@ func (repository *userRepository) LoginUser(ctx context.Context, loginRequest do
 		}
 		return "", fmt.Errorf("failed to login user: %v", err)
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
+
+	// Check if the password is correct
+	// if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
+	// 	return "", fmt.Errorf("invalid credentials: %v", err)
+	// }
+	if err := infrastructure.ComparePassword(user.Password, loginRequest.Password); err != nil {
 		return "", fmt.Errorf("invalid credentials: %v", err)
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"user_id": user.ID,
-		"email":   user.Email,
-		"role":    user.Role,
-		"exp":     time.Now().Add(72 * time.Hour).Unix(),
-	})
-	jwtToken, err := token.SignedString(jwtSecret)
+
+	// Generate JWT token
+	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	// 	"user_id": user.ID,
+	// 	"email":   user.Email,
+	// 	"role":    user.Role,
+	// 	"exp":     time.Now().Add(72 * time.Hour).Unix(),
+	// })
+
+	// jwtToken, err := token.SignedString(jwtSecret)
+	// if err != nil {
+	// 	return "", fmt.Errorf("failed to create token: %v", err)
+	// }
+	// return jwtToken, nil
+	token, err := infrastructure.GenerateJWTToken(user.ID.Hex(), user.Email, string(user.Role))
 	if err != nil {
 		return "", fmt.Errorf("failed to create token: %v", err)
 	}
-	return jwtToken, nil
+	return token, nil
 }
 
 func (repository *userRepository) GetAllUsers(ctx context.Context) ([]*domain.User, error) {

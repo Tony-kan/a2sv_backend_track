@@ -16,8 +16,8 @@ import (
 type Controller struct {
 	// taskService services.TaskServices
 	// userService services.UserServices
-	taskUsecase domain.TaskUsecase
-	userUsecase domain.UserUsecase
+	TaskUsecase domain.TaskUsecase
+	UserUsecase domain.UserUsecase
 }
 
 // func NewController(taskService services.TaskServices, userService services.UserServices) *Controller {
@@ -46,7 +46,7 @@ func (controller *Controller) AddTask(ctx *gin.Context) {
 	}
 	// createdTask, err := controller.taskService.AddTask(task)
 	// taskID, err := controller.taskService.AddTask(task)
-	taskID, err := controller.taskUsecase.AddTask(ctx, &task)
+	taskID, err := controller.TaskUsecase.AddTask(ctx, &task)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -70,7 +70,7 @@ func (controller *Controller) AddTask(ctx *gin.Context) {
 func (controller *Controller) RemoveTask(ctx *gin.Context) {
 	taskID := ctx.Param("id")
 	// err := controller.taskService.RemoveTask(taskID)
-	err := controller.taskUsecase.RemoveTask(ctx, taskID)
+	err := controller.TaskUsecase.RemoveTask(ctx, taskID)
 
 	if err != nil {
 		if errors.Is(err, domain.ErrTaskNotFound) {
@@ -97,7 +97,7 @@ func (controller *Controller) RemoveTask(ctx *gin.Context) {
 func (controller *Controller) GetTaskById(ctx *gin.Context) {
 	taskID := ctx.Param("id")
 	// task, err := controller.taskService.GetTaskById(taskID)
-	task, err := controller.taskUsecase.GetTaskById(ctx, taskID)
+	task, err := controller.TaskUsecase.GetTaskById(ctx, taskID)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -117,7 +117,7 @@ func (controller *Controller) GetTaskById(ctx *gin.Context) {
 // @Router /api/v1/tasks/ [get]
 func (controller *Controller) GetAllTasks(ctx *gin.Context) {
 	// tasks, err := controller.taskService.GetAllTasks()
-	tasks, err := controller.taskUsecase.GetAllTasks(ctx)
+	tasks, err := controller.TaskUsecase.GetAllTasks(ctx)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -177,7 +177,7 @@ func (controller *Controller) UpdateTask(ctx *gin.Context) {
 		return
 	}
 	// if err := controller.taskService.UpdateTask(taskID, validUpdate); err != nil {
-	if err := controller.taskUsecase.UpdateTask(ctx, taskID, validUpdate); err != nil {
+	if err := controller.TaskUsecase.UpdateTask(ctx, taskID, validUpdate); err != nil {
 
 		if errors.Is(err, domain.ErrTaskNotFound) {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "task not found"})
@@ -211,7 +211,7 @@ func (controller *Controller) RegisterUser(ctx *gin.Context) {
 	// createdTask, err := controller.taskService.AddTask(task)
 	// taskID, err := controller.taskService.AddTask(task)
 	// userId, err := controller.userService.RegisterUser(user)
-	userId, err := controller.userUsecase.RegisterUser(ctx, &user)
+	userId, err := controller.UserUsecase.RegisterUser(ctx, &user)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -244,7 +244,7 @@ func (controller *Controller) LoginUser(ctx *gin.Context) {
 	// taskID, err := controller.taskService.AddTask(task)
 	// userId, err := controller.userService.RegisterUser(user)
 	// token, err := controller.userService.LoginUser(loginRequest)
-	token, err := controller.userUsecase.LoginUser(ctx, loginRequest)
+	token, err := controller.UserUsecase.LoginUser(ctx, loginRequest)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -266,7 +266,7 @@ func (controller *Controller) LoginUser(ctx *gin.Context) {
 func (controller *Controller) GetAllUsers(ctx *gin.Context) {
 
 	// users, err := controller.userService.GetAllUsers()
-	users, err := controller.userUsecase.GetAllUsers(ctx)
+	users, err := controller.UserUsecase.GetAllUsers(ctx)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

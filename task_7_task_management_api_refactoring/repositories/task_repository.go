@@ -9,15 +9,15 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type taskRepository struct {
-	database   mongo.Database
+	database   *mongo.Database
 	collection string
 }
 
-func NewTaskRepository(database mongo.Database, collection string) domain.TaskRepository {
+func NewTaskRepository(database *mongo.Database, collection string) domain.TaskRepository {
 	return &taskRepository{
 		database:   database,
 		collection: collection,

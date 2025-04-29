@@ -39,8 +39,8 @@ func (usecase *TaskUsecase) GetAllTasks(ctx context.Context) ([]*domain.Task, er
 	return usecase.TaskRepository.GetAllTasks(ctx)
 }
 
-func (usecase *TaskUsecase) UpdateTask(ctx context.Context, updateFields map[string]interface{}) error {
+func (usecase *TaskUsecase) UpdateTask(ctx context.Context, taskID string, updateFields map[string]interface{}) error {
 	ctx, cancel := context.WithTimeout(ctx, usecase.ContextTimeout)
 	defer cancel()
-	return usecase.TaskRepository.UpdateTask(ctx, updateFields)
+	return usecase.TaskRepository.UpdateTask(ctx, taskID, updateFields)
 }

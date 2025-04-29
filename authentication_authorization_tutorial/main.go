@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
-	"strings"
 )
 
 var users = make(map[string]*User)
@@ -29,7 +30,7 @@ func main() {
 			return
 		}
 
-		//Todo : Implement user registration logic
+		// Todo : Implement user registration logic
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": "Internal server error"})

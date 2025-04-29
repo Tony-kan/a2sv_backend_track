@@ -10,6 +10,7 @@ var (
 	ErrInvalidEmail    = errors.New("invalid email format")
 	ErrInvalidPassword = errors.New("invalid password format")
 	ErrInvalidUsername = errors.New("invalid username format")
+	ErrEmptyPassword   = errors.New("password cannot be empty")
 )
 
 var (

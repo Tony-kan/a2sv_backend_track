@@ -1,17 +1,13 @@
 package infrastructure
 
 import (
-	"fmt"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
-// Todo : Implementing JWT Validation logic
+// Todo : middleware to handdle authentication and authorization
 
-// var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
-var jwtSecret = []byte("secret")
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -31,35 +27,45 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		token, err := jwt.Parse(authParts[1], func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return jwtSecret, nil
-		})
+		// token, err := jwt.Parse(authParts[1], func(token *jwt.Token) (interface{}, error) {
+		// 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+		// 		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		// 	}
+		// 	return jwtSecret, nil
+		// })
 
-		if err != nil || !token.Valid {
+		// if err != nil || !token.Valid {
+		// 	ctx.JSON(401, gin.H{"error": "Authorization header is invalid"})
+		// 	ctx.Abort()
+		// 	return
+		// }
+
+		// claims, ok := token.Claims.(jwt.MapClaims)
+		// if !ok {
+		// 	ctx.JSON(401, gin.H{"error": "Invalid token claims"})
+		// 	ctx.Abort()
+		// 	return
+		// }
+
+		claims, err := ValidateJWTToken(authParts[1])
+		if err != nil {
 			ctx.JSON(401, gin.H{"error": "Authorization header is invalid"})
 			ctx.Abort()
 			return
 		}
 
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			ctx.JSON(401, gin.H{"error": "Invalid token claims"})
-			ctx.Abort()
-			return
-		}
+		// roleStr, ok := claims["role"].(string)
 
-		roleStr, ok := claims["role"].(string)
+		// if !ok {
+		// 	ctx.JSON(401, gin.H{"error": "Role claim is missing or invalid"})
+		// 	ctx.Abort()
+		// 	return
+		// }
 
-		if !ok {
-			ctx.JSON(401, gin.H{"error": "Role claim is missing or invalid"})
-			ctx.Abort()
-			return
-		}
-
-		ctx.Set("role", roleStr)
+		// ctx.Set("role", roleStr)
+		ctx.Set("user_id", claims["user_id"])
+		ctx.Set("email", claims["email"])
+		ctx.Set("role", claims["role"])
 		ctx.Next()
 
 	}

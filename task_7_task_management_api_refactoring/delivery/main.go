@@ -2,15 +2,17 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/joho/godotenv"
 
 	"log"
-	"os"
-	"task_7_task_management_api_refactoring/Delivery/routers"
-	domain "task_7_task_management_api_refactoring/Domain"
-	"task_7_task_management_api_refactoring/delivery/controllers"
+	"task_7_task_management_api_refactoring/Delivery/controllers"
+	"task_7_task_management_api_refactoring/delivery/routers"
+
+	// "task_7_task_management_api_refactoring/delivery/controllers"
+	domain "task_7_task_management_api_refactoring/domain"
 	"task_7_task_management_api_refactoring/repositories"
 	"task_7_task_management_api_refactoring/usecases"
 
@@ -44,19 +46,24 @@ func main() {
 	// tasksCollection := db.Collection("tasks")
 	// userCollection := db.Collection("users")
 	taskRepository := repositories.NewTaskRepository(db, domain.CollectionTask)
-	taskUsecase := usecases.NewTaskUsecase(taskRepository, 10*time.Second)
 
 	userRepository := repositories.NewUserRepository(db, domain.CollectionUser)
-	userUsecase := usecases.NewUserUsecase(userRepository, 10*time.Second)
+
+	userUC := usecases.NewUserUsecase(userRepository, 10*time.Second)
+	taskUC := usecases.NewTaskUsecase(taskRepository, 10*time.Second)
 
 	// taskService := services.NewTaskService(tasksCollection)
 	// userService := services.NewUserService(userCollection)
 	// taskRepository := repositories.NewTaskRepository(*db, tasksCollection)
 
 	// controller := controllers.NewController(taskService, userService)
+	// controller := &controllers.Controller{
+	// 	taskUsecase: taskUsecase,
+	// 	userUsecase: userUsecase,
+	// }
 	controller := &controllers.Controller{
-		taskUsecase: taskUsecase,
-		userUsecase: userUsecase,
+		TaskUsecase: taskUC,
+		UserUsecase: userUC,
 	}
 	taskRouter := routers.NewRouter(controller)
 
