@@ -14,10 +14,42 @@ You can find the Postman documentation for this API at the following URL:
 [Postman Documentation](http://localhost:8080/swagger/doc.json)  
 [Swagger Documentation](http://localhost:8080/swagger/index.html)
 
+## How to Run the Application & Environment Setup
+
+Follow these steps to run the Task Management API:
+
+1. **Navigate to the Root Directory**:
+   Open a terminal and navigate to the root directory of the project:
+
+   ```bash
+   cd /path/to/task_7_task_management_api_refactoring
+   ```
+
+2. **Create a `.env` File**:
+   Create a `.env` file in the root directory and add the following environment variables:
+
+   ```
+   MONGO_URI=mongodb://<username>:<password>@<host>:<port>/<database>
+   JWT_SECRET=your_jwt_secret
+   ```
+
+   - Replace `<username>`, `<password>`, `<host>`, `<port>`, and `<database>` with your MongoDB credentials.
+   - Replace `your_jwt_secret` with a secure secret key for signing JWT tokens.
+
+3. **Run the Application**:
+   Use the following command to start the application:
+
+   ```bash
+   go run delivery/main.go
+   ```
+
+4. **Access the API**:
+   Once the application is running, you can access the API at `http://localhost:8080/api/v1`.
+
 ## Project Structure
 
 ```
-task-manager/
+task_7_task_management_api_refactoring/
 ├── delivery/
 │   ├── main.go
 │   ├── controllers/
@@ -67,22 +99,6 @@ task-manager/
 - **Usecases/**: Contains the application-specific business rules.
   - **task_usecases.go**: Implements the use cases related to tasks, such as creating, updating, retrieving, and deleting tasks.
   - **user_usecases.go**: Implements the use cases related to users, such as registering and logging in.
-
-## Environment Setup
-
-### Create a `.env` File
-
-To connect to MongoDB and configure JWT, create a `.env` file in the root directory of the project and add the following lines:
-
-```
-MONGO_URI=mongodb://<username>:<password>@<host>:<port>/<database>
-JWT_SECRET=your_jwt_secret
-```
-
-- Replace `<username>`, `<password>`, `<host>`, `<port>`, and `<database>` with your MongoDB credentials.
-- Replace `your_jwt_secret` with a secure secret key for signing JWT tokens.
-
-Ensure the `.env` file is included in your `.gitignore` file to avoid exposing sensitive information.
 
 ## Endpoints
 

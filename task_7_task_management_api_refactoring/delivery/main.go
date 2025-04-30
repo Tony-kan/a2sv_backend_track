@@ -28,7 +28,8 @@ import (
 
 func main() {
 	//  MongoDB Connection
-	godotenv.Load()
+	// godotenv.Load("../.env")
+	godotenv.Load("./.env")
 	mongo_uri := os.Getenv("MONGO_URI")
 	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongo_uri))
 	if err != nil {
