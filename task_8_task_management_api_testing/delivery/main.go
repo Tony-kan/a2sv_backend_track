@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"log"
-	"task_8_task_management_api_testing/Delivery/controllers"
+	"task_8_task_management_api_testing/delivery/controllers"
 	"task_8_task_management_api_testing/delivery/routers"
 
 	domain "task_8_task_management_api_testing/domain"

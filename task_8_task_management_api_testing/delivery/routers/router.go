@@ -1,7 +1,7 @@
 package routers
 
 import (
-	"task_8_task_management_api_testing/Delivery/controllers"
+	"task_8_task_management_api_testing/delivery/controllers"
 	Infrastructure "task_8_task_management_api_testing/infrastructure"
 
 	"github.com/gin-gonic/gin"

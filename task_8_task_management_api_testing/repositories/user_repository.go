@@ -72,27 +72,10 @@ func (repository *userRepository) LoginUser(ctx context.Context, loginRequest do
 		return "", fmt.Errorf("failed to login user: %v", err)
 	}
 
-	// Check if the password is correct
-	// if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginRequest.Password)); err != nil {
-	// 	return "", fmt.Errorf("invalid credentials: %v", err)
-	// }
 	if err := infrastructure.ComparePassword(user.Password, loginRequest.Password); err != nil {
 		return "", fmt.Errorf("invalid credentials: %v", err)
 	}
 
-	// Generate JWT token
-	// token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	// 	"user_id": user.ID,
-	// 	"email":   user.Email,
-	// 	"role":    user.Role,
-	// 	"exp":     time.Now().Add(72 * time.Hour).Unix(),
-	// })
-
-	// jwtToken, err := token.SignedString(jwtSecret)
-	// if err != nil {
-	// 	return "", fmt.Errorf("failed to create token: %v", err)
-	// }
-	// return jwtToken, nil
 	token, err := infrastructure.GenerateJWTToken(user.ID.Hex(), user.Email, string(user.Role))
 	if err != nil {
 		return "", fmt.Errorf("failed to create token: %v", err)
