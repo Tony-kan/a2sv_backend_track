@@ -119,17 +119,6 @@ func TestUserUsecase_GetAllUsers(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	// t.Run("AccessDenied", func(t *testing.T) {
-	// 	mockRepo := new(mocks.MockUserRepository)
-	// 	usecase := usecases.NewUserUsecase(mockRepo, 2*time.Second)
-
-	// 	mockRepo.On("GetAllUsers", mock.Anything).Return(nil, domain.ErrAccessDenied)
-
-	// 	_, err := usecase.GetAllUsers(context.Background())
-
-	// 	assert.ErrorIs(t, err, domain.ErrAccessDenied)
-	// 	mockRepo.AssertExpectations(t)
-	// })
 	t.Run("AccessDenied", func(t *testing.T) {
 		mockRepo := new(mocks.MockUserRepository)
 		usecase := usecases.NewUserUsecase(mockRepo, 2*time.Second)

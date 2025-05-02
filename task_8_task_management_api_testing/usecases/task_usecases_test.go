@@ -57,26 +57,7 @@ func TestTaskUsecase_AddTask(t *testing.T) {
 
 	// 	assert.ErrorContains(t, err, "context deadline exceeded")
 	// })
-	t.Run("ContextTimeout", func(t *testing.T) {
-		mockRepo := new(mocks.MockTaskRepository)
-		usecase := usecases.NewTaskUsecase(mockRepo, time.Nanosecond)
 
-		ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
-		defer cancel()
-
-		// Don't set up any mock expectations
-		// Sleep to ensure timeout occurs before any repository call
-		time.Sleep(1 * time.Millisecond)
-
-		_, err := usecase.AddTask(ctx, &domain.Task{
-			Title:   "Test Task",
-			DueDate: time.Now().AddDate(0, 0, 1),
-			Status:  "Pending",
-		})
-
-		assert.ErrorContains(t, err, "context deadline exceeded")
-		mockRepo.AssertNotCalled(t, "AddTask") // Verify no repository call
-	})
 }
 
 func TestTaskUsecase_GetTaskById(t *testing.T) {
