@@ -5,27 +5,15 @@ import (
 	"net/http"
 	domain "task_8_task_management_api_testing/domain"
 
-	// services "task_7_task_management_api_refactoring/data"
-
-	// "task_7_task_management_api_refactoring/models"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Controller struct {
-	// taskService services.TaskServices
-	// userService services.UserServices
 	TaskUsecase domain.TaskUsecase
 	UserUsecase domain.UserUsecase
 }
-
-// func NewController(taskService services.TaskServices, userService services.UserServices) *Controller {
-// 	return &Controller{
-// 		taskService: taskService,
-// 		userService: userService,
-// 	}
-// }
 
 // AddTask godoc
 // @Summary Create a new task
@@ -240,10 +228,7 @@ func (controller *Controller) LoginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// createdTask, err := controller.taskService.AddTask(task)
-	// taskID, err := controller.taskService.AddTask(task)
-	// userId, err := controller.userService.RegisterUser(user)
-	// token, err := controller.userService.LoginUser(loginRequest)
+
 	token, err := controller.UserUsecase.LoginUser(ctx, loginRequest)
 
 	if err != nil {

@@ -8,7 +8,6 @@ import (
 
 // Todo : middleware to handdle authentication and authorization
 
-
 func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
@@ -26,26 +25,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
-
-		// token, err := jwt.Parse(authParts[1], func(token *jwt.Token) (interface{}, error) {
-		// 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-		// 		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		// 	}
-		// 	return jwtSecret, nil
-		// })
-
-		// if err != nil || !token.Valid {
-		// 	ctx.JSON(401, gin.H{"error": "Authorization header is invalid"})
-		// 	ctx.Abort()
-		// 	return
-		// }
-
-		// claims, ok := token.Claims.(jwt.MapClaims)
-		// if !ok {
-		// 	ctx.JSON(401, gin.H{"error": "Invalid token claims"})
-		// 	ctx.Abort()
-		// 	return
-		// }
 
 		claims, err := ValidateJWTToken(authParts[1])
 		if err != nil {

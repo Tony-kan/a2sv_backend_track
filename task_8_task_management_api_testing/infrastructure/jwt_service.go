@@ -46,10 +46,6 @@ func ValidateJWTToken(tokenString string) (jwt.MapClaims, error) {
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	// if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-	// 	return claims, nil
-	// }
-
 	// return nil, fmt.Errorf("invalid token claims")
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
@@ -64,18 +60,11 @@ func ValidateJWTToken(tokenString string) (jwt.MapClaims, error) {
 		}
 	}
 
-	// Validate claim types
-	// if _, ok := claims["user_id"].(string); !ok {
-	// 	return nil, fmt.Errorf("invalid user_id type")
-	// }
-	// if _, ok := claims["email"].(string); !ok {
-	// 	return nil, fmt.Errorf("invalid email type")
-	// }
 	if _, ok := claims["role"].(string); !ok {
 		return nil, fmt.Errorf("invalid role type")
 	}
 
-	// Validate expiration
+	// Validate expiration dateee
 	exp, ok := claims["exp"].(float64)
 	if !ok {
 		return nil, fmt.Errorf("invalid expiration format")

@@ -46,7 +46,7 @@ func (repository *taskRepository) AddTask(ctx context.Context, task *domain.Task
 		task.Status = "Pending"
 	}
 
-	_, err := repository.GetCollection().InsertOne(context.Background(), task)
+	_, err := repository.GetCollection().InsertOne(ctx, task)
 	if err != nil {
 		return "", fmt.Errorf("failed to create task: %v", err)
 	}
@@ -60,7 +60,7 @@ func (repository *taskRepository) RemoveTask(ctx context.Context, taskID string)
 		return domain.ErrInvalidTaskID
 	}
 
-	res, err := repository.GetCollection().DeleteOne(context.Background(), bson.M{"_id": objectID})
+	res, err := repository.GetCollection().DeleteOne(ctx, bson.M{"_id": objectID})
 
 	if err != nil {
 		return fmt.Errorf("failed to remove task: %v", err)
@@ -81,7 +81,7 @@ func (repository *taskRepository) GetTaskById(ctx context.Context, taskID string
 		return &task, domain.ErrInvalidTaskID
 	}
 
-	err = repository.GetCollection().FindOne(context.Background(), bson.M{"_id": objID}).Decode(&task)
+	err = repository.GetCollection().FindOne(ctx, bson.M{"_id": objID}).Decode(&task)
 
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
@@ -97,13 +97,13 @@ func (repository *taskRepository) GetAllTasks(ctx context.Context) ([]*domain.Ta
 	//var tasks []models.Task
 	tasks := make([]*domain.Task, 0)
 
-	cur, err := repository.GetCollection().Find(context.Background(), bson.M{})
+	cur, err := repository.GetCollection().Find(ctx, bson.M{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all tasks: %v", err)
 	}
-	defer cur.Close(context.Background())
+	defer cur.Close(ctx)
 
-	for cur.Next(context.Background()) {
+	for cur.Next(ctx) {
 		var task domain.Task
 		if err := cur.Decode(&task); err != nil {
 			return nil, fmt.Errorf("failed to decode task: %v", err)
@@ -126,7 +126,7 @@ func (repository *taskRepository) UpdateTask(ctx context.Context, taskID string,
 	updateFields["updated_at"] = time.Now()
 
 	res, err := repository.GetCollection().UpdateOne(
-		context.Background(),
+		ctx,
 		bson.M{"_id": objectID},
 		bson.M{"$set": updateFields},
 	)
