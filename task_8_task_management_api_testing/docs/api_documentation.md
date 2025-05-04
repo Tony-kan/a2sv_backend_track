@@ -1,8 +1,8 @@
 # Task Management REST API Documentation
 
-## Objective
+### Objective
 
-Refactor the existing Task Management REST API using Clean Architecture principles to improve maintainability, testability, and scalability.
+Implement comprehensive unit tests for the Task Management API using the `testify` library to ensure the correctness of individual components and increase confidence in the stability of the application.
 
 ## Base URL
 
@@ -49,56 +49,82 @@ Follow these steps to run the Task Management API:
 ## Project Structure
 
 ```
-task_7_task_management_api_refactoring/
-├── delivery/
-│   ├── main.go
-│   ├── controllers/
-│   │   └── controller.go
-│   └── routers/
-│       └── router.go
-├── domain/
-│   └── task.go
-|   └── user.go
-|   └── login.go
-|   └── error_response.go
-├── infrastructure/
-│   ├── auth_middleWare.go
-│   ├── jwt_service.go
-│   └── password_service.go
-├── repositories/
-│   ├── task_repository.go
-│   └── user_repository.go
-└── usecases/
-    ├── task_usecases.go
-    └── user_usecases.go
+   task_8_task_management_api_testing/
+   ├── delivery/
+   │   ├── main.go
+   │   ├── controllers/
+   │   │   └── controller.go
+   │   └── routers/
+   │       └── router.go
+   ├── domain/
+   │   ├── task_test.go
+   │   └── user_test.go
+   |   └── task.go
+   |   └── user.go
+   |   └── login.go
+   |   └── error_response.go
+   ├── infrastructure/
+   |   └── auth_middleWare_test.go
+   │   ├── jwt_service_test.go
+   │   └── password_service_test.go
+   │   ├── auth_middleWare.go
+   │   ├── jwt_service.go
+   │   └── password_service.go
+   ├── repositories/
+   |   └──  mocks/
+   │        ├── task_repository.go
+   │        └── user_repository.go
+   │   ├── task_repository.go
+   │   └── user_repository.go
+   └── usecases/
+       ├── task_usecases_test.go
+       └── user_usecases_test.go
+       ├── task_usecases.go
+       └── user_usecases.go
 ```
 
-### Layers Overview
+## Unit Testing with Testify
 
-- **Delivery/**: Handles incoming HTTP requests and responses.
+### Test Suite Setup
 
-  - **main.go**: Sets up the HTTP server, initializes dependencies, and defines the routing configuration.
-  - **controllers/controller.go**: Handles HTTP requests and invokes the appropriate use case methods.
-  - **routers/router.go**: Sets up the routes and initializes the Gin router.
+1. **Install the `testify` Library**:
+   Use the following command to install the `testify` library:
 
-- **Domain/**: Defines the core business entities and logic.
+   ```bash
+   go get github.com/stretchr/testify
+   ```
 
-  - **domain.go**: Contains the core business entities such as `Task` and `User` structs.
+2. **Mocking Dependencies**:
+   Use `testify/mock` to mock dependencies and isolate components during testing. For example:
 
-- **Infrastructure/**: Implements external dependencies and services.
+   - Mock the database layer for repository tests.
+   - Mock external services like JWT and password hashing.
 
-  - **auth_middleWare.go**: Middleware to handle authentication and authorization using JWT tokens.
-  - **jwt_service.go**: Functions to generate and validate JWT tokens.
-  - **password_service.go**: Functions for hashing and comparing passwords to ensure secure storage of user credentials.
+3. **Setup and Teardown**:
+   Implement setup and teardown functions to maintain a clean state between test cases.
 
-- **Repositories/**: Abstracts the data access logic.
+4. **Run Tests**:
+   Use the following command to run all tests:
+   ```bash
+   go test ./... -v
+   ```
 
-  - **task_repository.go**: Interface and implementation for task data access operations.
-  - **user_repository.go**: Interface and implementation for user data access operations.
+### Test Coverage
 
-- **Usecases/**: Contains the application-specific business rules.
-  - **task_usecases.go**: Implements the use cases related to tasks, such as creating, updating, retrieving, and deleting tasks.
-  - **user_usecases.go**: Implements the use cases related to users, such as registering and logging in.
+- **Domain Models**: Test the behavior of core business entities like `Task` and `User`.
+- **Use Cases**: Test business logic for tasks and users, including edge cases.
+- **Repositories**: Test data access logic with mocked database interactions.
+- **Infrastructure**: Test external services like JWT and password hashing.
+
+### CI Integration
+
+Integrate unit tests into the CI pipeline to automate testing and ensure code quality with each commit. Use a tool like GitHub Actions or Jenkins to run tests on every push or pull request.
+
+### Documentation
+
+- **Running Tests**: Use `go test ./... -v` to run all tests.
+- **Test Coverage**: Use `go test ./... -cover` to generate a test coverage report.
+- **Mocking**: Use `testify/mock` for mocking dependencies.
 
 ## Endpoints
 
@@ -261,3 +287,6 @@ task_7_task_management_api_refactoring/
 5. **Backward Compatibility**: Maintains existing API functionality.
 6. **Documentation**: Comprehensive documentation of the refactored architecture and design decisions.
 7. **Testing**: Unit tests for critical components to ensure correctness and maintainability.
+8. **Unit Testing**: Comprehensive unit tests with high coverage using `testify`.
+9. **Mocking**: Effective use of mocking to isolate components and ensure test independence.
+10. **CI Integration**: Automated testing in the CI pipeline to ensure code quality.
