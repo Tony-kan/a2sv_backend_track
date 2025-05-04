@@ -12,7 +12,7 @@ import (
 var jwtSecret = []byte("secret")
 
 func GenerateJWTToken(userID string, email, role string) (string, error) {
-	// Create the token
+	// -- Create the token
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": userID,
 		"email":   email,
@@ -20,7 +20,7 @@ func GenerateJWTToken(userID string, email, role string) (string, error) {
 		"exp":     jwt.TimeFunc().Add(72 * time.Hour).Unix(),
 	})
 
-	// Sign the token with the secret key
+	//-- Sign the token with the secret key
 	jwtToken, err := token.SignedString(jwtSecret)
 	if err != nil {
 		return "", err
@@ -31,7 +31,7 @@ func GenerateJWTToken(userID string, email, role string) (string, error) {
 
 func ValidateJWTToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		// Validate algorithm
+
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
@@ -46,13 +46,12 @@ func ValidateJWTToken(tokenString string) (jwt.MapClaims, error) {
 		return nil, fmt.Errorf("invalid token")
 	}
 
-	// return nil, fmt.Errorf("invalid token claims")
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		return nil, fmt.Errorf("invalid token claims format")
 	}
 
-	// Validate required claims
+	// --- Validate required claims
 	requiredClaims := []string{"user_id", "email", "role", "exp"}
 	for _, claim := range requiredClaims {
 		if _, ok := claims[claim]; !ok {
