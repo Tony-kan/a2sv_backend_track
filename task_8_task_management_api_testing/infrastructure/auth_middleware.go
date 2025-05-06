@@ -75,7 +75,7 @@ func RequireRole(allowedRoles ...string) gin.HandlerFunc {
 		}
 
 		errorMsg := fmt.Sprintf(
-			"Forbidden: Role : '%s' cannot access to this resource. Allowed roles : %v ",
+			"Forbidden: Insufficient permissions. Role '%s' cannot access this resource. Allowed roles: %v",
 			roleStr,
 			allowedRoles,
 		)

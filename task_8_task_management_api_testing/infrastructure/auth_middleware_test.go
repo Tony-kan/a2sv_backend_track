@@ -124,6 +124,9 @@ func TestRequireRole_ForbiddenRole(t *testing.T) {
 
 	assert.Equal(t, http.StatusForbidden, w.Code)
 	assert.Contains(t, w.Body.String(), "Insufficient permissions")
+	// assert.Contains(t, w.Body.String(), "Insufficient permissions")
+    assert.Contains(t, w.Body.String(), "Role 'user'")
+    assert.Contains(t, w.Body.String(), "Allowed roles: [admin]")
 }
 
 func TestRequireRole_MissingRole(t *testing.T) {
