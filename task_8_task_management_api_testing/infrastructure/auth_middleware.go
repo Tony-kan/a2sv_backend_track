@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -73,7 +74,14 @@ func RequireRole(allowedRoles ...string) gin.HandlerFunc {
 			}
 		}
 
-		ctx.JSON(403, gin.H{"error": "Forbidden: Insufficient permissions"})
+		errorMsg := fmt.Sprintf(
+			"Forbidden: Role : '%s' cannot access to this resource. Allowed roles : %v ",
+			roleStr,
+			allowedRoles,
+		)
+		ctx.JSON(403, gin.H{"error": errorMsg})
+
+		// ctx.JSON(403, gin.H{"error": "Forbidden: Insufficient permissions"})
 		ctx.Abort()
 	}
 }
